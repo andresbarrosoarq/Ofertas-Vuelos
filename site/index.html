@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ofertas de Vuelos</title>
+<meta name="description" content="La ida y vuelta más barata entre Málaga y Barcelona en Ryanair y Vueling.">
+<meta name="theme-color" content="#0d2a3f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vuelos">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: una columna tipo app; la oferta ganadora es una tarjeta de embarque, el resto una lista de fines de semana. */
+:root {
+  --ink: #0d2a3f;        /* azul noche de pista */
+  --bg: #eef2f5;
+  --paper: #ffffff;
+  --muted: #5b6f80;
+  --line: #d5dee6;
+  --amber: #f2a900;      /* luces de pista: el precio */
+  --amber-ink: #3a2a00;
+  --ryanair: #073590;
+  --vueling: #8a6d00;
+  --vueling-bg: #fff3c4;
+  --ryanair-bg: #e3eaf8;
+  --ok: #1f7a4d;
+  --bad: #b3261e;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", -apple-system, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e6eef5; --bg: #0a1824; --paper: #112433; --muted: #93a7b8; --line: #23394b;
+    --amber: #ffbf2e; --amber-ink: #2b1f00; --ryanair: #a9c1ff; --vueling: #ffd54a;
+    --vueling-bg: #3a3112; --ryanair-bg: #1a2c52; --ok: #5fd39a; --bad: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e6eef5; --bg: #0a1824; --paper: #112433; --muted: #93a7b8; --line: #23394b;
+  --amber: #ffbf2e; --amber-ink: #2b1f00; --ryanair: #a9c1ff; --vueling: #ffd54a;
+  --vueling-bg: #3a3112; --ryanair-bg: #1a2c52; --ok: #5fd39a; --bad: #ff8a80;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.wrap {
+  max-width: 560px; margin: 0 auto; display: grid; gap: 20px;
+  padding-block: 16px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+header h1 { margin: 0; font: 700 26px/1 var(--display); letter-spacing: .02em; text-transform: uppercase; }
+.sub { color: var(--muted); font-size: 13px; }
+button, .btn {
+  font: 600 14px/1 var(--body); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+}
+button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+button[disabled] { opacity: .55; cursor: default; }
+.btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Tarjeta de embarque */
+.pass { background: var(--paper); border-radius: 18px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 10px 30px -18px rgba(13,42,63,.45); }
+.pass-top { padding: 18px 18px 14px; display: grid; gap: 10px; }
+.eyebrow { font: 600 12px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.route { display: flex; align-items: center; gap: 10px; font: 700 44px/1 var(--display); letter-spacing: .02em; }
+.route .arrow { font-size: 26px; color: var(--muted); font-weight: 500; }
+.cities { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; max-width: 240px; }
+.dates { font: 600 20px/1.2 var(--display); letter-spacing: .02em; text-transform: uppercase; }
+.total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.price-tag { background: var(--amber); color: var(--amber-ink); border-radius: 10px; padding: 6px 12px; font: 700 34px/1 var(--display); font-variant-numeric: tabular-nums; }
+.perforation { height: 0; border-top: 2px dashed var(--line); margin: 0 14px; position: relative; }
+.perforation::before, .perforation::after { content: ""; position: absolute; top: -11px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); }
+.perforation::before { left: -24px; } .perforation::after { right: -24px; }
+.legs { padding: 6px 18px 16px; display: grid; }
+.leg { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.leg:last-child { border-bottom: 0; }
+.leg-kind { font: 600 12px/1 var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); grid-column: 1 / -1; }
+.leg-main { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.time { font: 500 20px/1 var(--mono); font-variant-numeric: tabular-nums; }
+.leg-price { font: 600 20px/1 var(--display); font-variant-numeric: tabular-nums; align-self: center; }
+.leg-meta { color: var(--muted); font-size: 13px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.leg-meta a { color: inherit; }
+.chip { font: 600 11px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; padding: 5px 8px; border-radius: 6px; white-space: nowrap; }
+.chip.ryanair { background: var(--ryanair-bg); color: var(--ryanair); }
+.chip.vueling { background: var(--vueling-bg); color: var(--vueling); }
+
+/* Lista */
+.section-head { display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap; }
+.section-head h2 { margin: 0; font: 700 20px/1 var(--display); text-transform: uppercase; letter-spacing: .03em; }
+.seg { display: inline-flex; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.seg button { border: 0; padding: 7px 11px; font-size: 13px; background: transparent; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.list { display: grid; background: var(--paper); border-radius: 14px; border: 1px solid var(--line); overflow: hidden; }
+.row { border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.row > button { all: unset; box-sizing: border-box; width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 14px; cursor: pointer; }
+.row > button:focus-visible { outline: 3px solid var(--amber); outline-offset: -3px; }
+.row-date { font: 600 17px/1.1 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+.row-total { font: 700 20px/1 var(--display); font-variant-numeric: tabular-nums; align-self: center; text-align: right; }
+.row-sub { color: var(--muted); font-size: 13px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.row-detail { padding: 0 14px 12px; display: grid; gap: 2px; }
+.row-detail .leg { padding: 8px 0; }
+.best { color: var(--ok); font-weight: 600; }
+
+.criteria { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.criteria p { margin: 0; min-width: 0; }
+.notice { border-radius: 12px; padding: 12px 14px; font-size: 14px; background: var(--paper); border: 1px solid var(--line); }
+.notice.err { border-color: var(--bad); color: var(--bad); }
+.empty { text-align: center; padding: 28px 16px; color: var(--muted); }
+footer { color: var(--muted); font-size: 12px; display: grid; gap: 6px; }
+footer details summary { cursor: pointer; }
+
+/* Ajustes */
+dialog { border: 0; border-radius: 18px; padding: 0; width: min(520px, calc(100% - 24px)); background: var(--paper); color: var(--ink); max-height: calc(100% - 24px); }
+dialog::backdrop { background: rgba(5, 15, 25, .55); }
+.sheet { padding: 18px; display: grid; gap: 14px; }
+.sheet h2 { margin: 0; font: 700 22px/1 var(--display); text-transform: uppercase; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+input, select { font: 16px var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px; width: 100%; min-width: 0; }
+fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 0; display: flex; gap: 16px; flex-wrap: wrap; }
+legend { font-size: 13px; color: var(--muted); padding: 0 4px; }
+fieldset label { display: flex; align-items: center; gap: 6px; color: var(--ink); font-size: 15px; }
+fieldset input { width: auto; }
+.help { font-size: 13px; color: var(--muted); margin: 0; }
+.help a { color: inherit; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+#status { min-height: 1.2em; font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) { .spin { animation: spin 1s linear infinite; display: inline-block; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Ofertas de vuelos</h1>
+      <div class="sub" id="updated">Cargando…</div>
+    </div>
+    <button id="refresh" type="button" aria-label="Buscar precios ahora"><span id="refresh-icon">↻</span> Actualizar</button>
+  </header>
+
+  <div id="banner" hidden></div>
+
+  <section id="best" aria-live="polite"></section>
+
+  <section class="criteria">
+    <p id="criteria-text"></p>
+    <button type="button" id="open-settings">Cambiar</button>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Todos los fines de semana</h2>
+      <div class="seg" role="group" aria-label="Ciudad de salida" id="dir"></div>
+    </div>
+    <div style="height:10px"></div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <footer>
+    <div id="sources"></div>
+    <div>Precios por persona en tarifa básica (sin maleta facturada ni asiento). Ryanair: precio de ryanair.com. Vueling: precio de Google Flights. Confirma siempre el precio al reservar.</div>
+  </footer>
+</div>
+
+<dialog id="settings">
+  <form class="sheet" id="settings-form" method="dialog">
+    <h2>Qué buscar</h2>
+    <div class="grid2">
+      <label for="f-a">Ciudad 1 (IATA)<input id="f-a" maxlength="3" autocapitalize="characters" required></label>
+      <label for="f-b">Ciudad 2 (IATA)<input id="f-b" maxlength="3" autocapitalize="characters" required></label>
+      <label for="f-dia-ida">Día de ida<select id="f-dia-ida"></select></label>
+      <label for="f-hora-ida">Salida a partir de<input id="f-hora-ida" type="time" required></label>
+      <label for="f-dia-vta">Día de vuelta<select id="f-dia-vta"></select></label>
+      <label for="f-hora-vta">Salida a partir de<input id="f-hora-vta" type="time" required></label>
+      <label for="f-meses">Meses hacia delante<input id="f-meses" type="number" min="1" max="6" required></label>
+      <label for="f-adultos">Personas<input id="f-adultos" type="number" min="1" max="9" required></label>
+    </div>
+    <fieldset>
+      <legend>Compañías</legend>
+      <label for="f-fr"><input type="checkbox" id="f-fr" value="Ryanair"> Ryanair</label>
+      <label for="f-vy"><input type="checkbox" id="f-vy" value="Vueling"> Vueling</label>
+    </fieldset>
+    <label for="f-token">Clave de GitHub (solo la primera vez)
+      <input id="f-token" type="password" autocomplete="off" placeholder="github_pat_…">
+    </label>
+    <p class="help">La búsqueda la hace GitHub cada 6 horas. Para cambiar los criterios o actualizar al momento, la app necesita un token de GitHub con permiso sobre este repositorio: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">créalo aquí</a> (Repository access: solo <b>Ofertas-Vuelos</b>; permisos <b>Contents</b> y <b>Actions</b>: Read and write). Se guarda solo en este iPhone.</p>
+    <div id="status" role="status"></div>
+    <div class="actions">
+      <button type="button" id="cancel">Cancelar</button>
+      <button type="submit" class="btn-primary" id="save">Guardar y buscar</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const REPO = "andresbarrosoarq/Ofertas-Vuelos";
+const WORKFLOW = "buscar.yml";
+const DIAS = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+const DIAS_TXT = { lunes: "lunes", martes: "martes", miercoles: "miércoles", jueves: "jueves", viernes: "viernes", sabado: "sábado", domingo: "domingo" };
+const $ = (s) => document.querySelector(s);
+const eur = (n) => n.toLocaleString("es-ES", { style: "currency", currency: "EUR", minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+const fecha = (iso, opts = { weekday: "short", day: "numeric", month: "short" }) =>
+  new Date(iso + "T12:00:00").toLocaleDateString("es-ES", opts).replace(/\./g, "");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+};
+
+let data = null;
+let dir = store.get("dir") || "todas";
+
+function ciudad(code) { return (data?.nombres || {})[code] || code; }
+
+function chip(aerolinea) {
+  const k = aerolinea.toLowerCase().includes("ryanair") ? "ryanair" : aerolinea.toLowerCase().includes("vueling") ? "vueling" : "";
+  return `<span class="chip ${k}">${esc(aerolinea)}</span>`;
+}
+
+function leg(kind, t) {
+  return `<div class="leg">
+    <div class="leg-kind">${kind} · ${esc(fecha(t.fecha, { weekday: "long", day: "numeric", month: "long" }))}</div>
+    <div class="leg-main"><span class="time">${esc(t.salida)}</span><span>${esc(t.origen)} → ${esc(t.destino)}</span>${t.llegada ? `<span class="sub">llega ${esc(t.llegada)}</span>` : ""}</div>
+    <div class="leg-price">${eur(t.precio)}</div>
+    <div class="leg-meta">${chip(t.aerolinea)}${t.vuelo ? `<span>${esc(t.vuelo)}</span>` : ""}<a href="${esc(t.enlace)}" target="_blank" rel="noopener">Reservar ↗</a></div>
+  </div>`;
+}
+
+function filtered() {
+  const all = data?.ofertas || [];
+  return dir === "todas" ? all : all.filter((o) => o.origen === dir);
+}
+
+function renderBest() {
+  const o = filtered()[0];
+  const el = $("#best");
+  if (!o) {
+    el.innerHTML = `<div class="pass"><div class="empty">${data ? "No hay combinaciones con estos criterios. Prueba a cambiar horas o días." : "Todavía no hay resultados. Pulsa Actualizar o espera a la próxima búsqueda automática."}</div></div>`;
+    return;
+  }
+  el.innerHTML = `<article class="pass">
+    <div class="pass-top">
+      <div class="eyebrow">Mejor oferta · ida y vuelta</div>
+      <div class="route"><span>${esc(o.origen)}</span><span class="arrow">⇄</span><span>${esc(o.destino)}</span></div>
+      <div class="cities"><span>${esc(ciudad(o.origen))}</span><span>${esc(ciudad(o.destino))}</span></div>
+      <div class="total">
+        <div class="dates">${esc(fecha(o.fechaIda))} → ${esc(fecha(o.fechaVuelta))}</div>
+        <div class="price-tag" aria-label="Total ${eur(o.total)}">${eur(o.total)}</div>
+      </div>
+    </div>
+    <div class="perforation" aria-hidden="true"></div>
+    <div class="legs">${leg("Ida", o.ida)}${leg("Vuelta", o.vuelta)}</div>
+  </article>`;
+}
+
+function renderDir() {
+  const codes = data?.config?.aeropuertos || ["AGP", "BCN"];
+  const opts = [["todas", "Todas"], ...codes.map((c) => [c, "Desde " + ciudad(c)])];
+  $("#dir").innerHTML = opts.map(([v, t]) => `<button type="button" data-dir="${esc(v)}" aria-pressed="${v === dir}">${esc(t)}</button>`).join("");
+}
+
+function renderList() {
+  const items = filtered();
+  const min = items[0]?.total;
+  $("#list").innerHTML = items.length ? items.map((o, i) => `<div class="row">
+    <button type="button" aria-expanded="false" data-i="${i}">
+      <span class="row-date">${esc(fecha(o.fechaIda))} → ${esc(fecha(o.fechaVuelta))}</span>
+      <span class="row-total ${o.total === min ? "best" : ""}">${eur(o.total)}</span>
+      <span class="row-sub">${esc(o.origen)} ⇄ ${esc(o.destino)} · ${chip(o.ida.aerolinea)} ${esc(o.ida.salida)} · ${chip(o.vuelta.aerolinea)} ${esc(o.vuelta.salida)}</span>
+    </button>
+    <div class="row-detail" hidden>${leg("Ida", o.ida)}${leg("Vuelta", o.vuelta)}</div>
+  </div>`).join("") : `<div class="empty">Sin resultados.</div>`;
+}
+
+function renderMeta() {
+  const c = data?.config;
+  if (c) {
+    const aer = (c.aerolineas || []).join(" + ");
+    $("#criteria-text").innerHTML = `<b>${esc(DIAS_TXT[c.diaIda] || c.diaIda)}</b> desde ${esc(c.horaIdaDesde)} → <b>${esc(DIAS_TXT[c.diaVuelta] || c.diaVuelta)}</b> desde ${esc(c.horaVueltaDesde)}<br><span class="sub">${esc(c.aeropuertos.map(ciudad).join(" ⇄ "))} · ${esc(aer)} · ${c.adultos} ${c.adultos > 1 ? "personas" : "persona"} · próximos ${c.meses} meses</span>`;
+  }
+  if (data?.generado) {
+    const d = new Date(data.generado);
+    const mins = Math.round((Date.now() - d) / 60000);
+    const hace = mins < 60 ? `hace ${Math.max(mins, 1)} min` : mins < 1440 ? `hace ${Math.round(mins / 60)} h` : d.toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+    $("#updated").textContent = `Precios de ${hace} · ${data.ofertas.length} combinaciones`;
+  }
+  const f = data?.fuentes || {};
+  $("#sources").innerHTML = Object.entries(f).map(([k, v]) => `${esc(k)}: ${v.consultas - v.fallos}/${v.consultas} consultas correctas`).join(" · ")
+    + (data?.errores?.length ? `<details><summary>${data.errores.length} avisos</summary>${data.errores.map(esc).join("<br>")}</details>` : "");
+}
+
+function render() {
+  if (dir !== "todas" && !(data?.config?.aeropuertos || []).includes(dir)) dir = "todas";
+  renderBest(); renderDir(); renderList(); renderMeta(); }
+
+async function load(bust = false) {
+  try {
+    const r = await fetch("vuelos.json" + (bust ? "?t=" + Date.now() : ""), { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    data = await r.json();
+  } catch (e) {
+    if (!data) $("#updated").textContent = "Sin datos todavía";
+  }
+  render();
+  return data;
+}
+
+function banner(msg, err = false) {
+  const b = $("#banner");
+  b.hidden = !msg;
+  b.className = "notice" + (err ? " err" : "");
+  b.innerHTML = msg || "";
+}
+
+/* ---------- GitHub: cambiar criterios y lanzar la búsqueda ---------- */
+async function gh(path, opts = {}) {
+  const token = store.get("gh-token");
+  if (!token) throw new Error("Falta la clave de GitHub. Ábrela en «Cambiar».");
+  const r = await fetch(`https://api.github.com/repos/${REPO}${path}`, {
+    ...opts,
+    headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token}`, "X-GitHub-Api-Version": "2022-11-28", ...(opts.headers || {}) },
+  });
+  if (!r.ok) {
+    const msg = r.status === 401 ? "La clave de GitHub no es válida o ha caducado." : r.status === 403 || r.status === 404 ? "La clave no tiene permiso sobre el repositorio (Contents y Actions: Read and write)." : `GitHub respondió ${r.status}.`;
+    throw new Error(msg);
+  }
+  return r.status === 204 ? null : r.json();
+}
+
+async function waitForNewData(prev) {
+  banner(`<span class="spin">↻</span> Buscando precios en Ryanair y Vueling… tarda unos 3–5 minutos. Puedes cerrar la app.`);
+  for (let i = 0; i < 40; i++) {
+    await new Promise((r) => setTimeout(r, 20000));
+    const d = await load(true);
+    if (d && d.generado !== prev) { banner("Precios actualizados."); setTimeout(() => banner(""), 4000); return; }
+  }
+  banner(`Sigue buscando. Revisa el estado en <a href="https://github.com/${REPO}/actions" target="_blank" rel="noopener">GitHub Actions</a>.`, true);
+}
+
+async function refresh() {
+  const btn = $("#refresh");
+  btn.disabled = true;
+  try {
+    await gh(`/actions/workflows/${WORKFLOW}/dispatches`, { method: "POST", body: JSON.stringify({ ref: "main" }) });
+    await waitForNewData(data?.generado);
+  } catch (e) {
+    banner(esc(e.message), true);
+    if (!store.get("gh-token")) openSettings();
+  } finally { btn.disabled = false; }
+}
+
+function utf8ToB64(s) { return btoa(String.fromCharCode(...new TextEncoder().encode(s))); }
+
+async function saveConfig(cfg) {
+  const cur = await gh("/contents/config.json?ref=main");
+  await gh("/contents/config.json", {
+    method: "PUT",
+    body: JSON.stringify({ message: "Cambiar criterios de búsqueda desde la app", content: utf8ToB64(JSON.stringify(cfg, null, 2) + "\n"), sha: cur.sha, branch: "main" }),
+  });
+}
+
+/* ---------- Ajustes ---------- */
+const dlg = $("#settings");
+function openSettings() {
+  const c = data?.config || { aeropuertos: ["AGP", "BCN"], aerolineas: ["Ryanair", "Vueling"], diaIda: "viernes", horaIdaDesde: "17:00", diaVuelta: "domingo", horaVueltaDesde: "08:00", meses: 3, adultos: 1 };
+  const opts = DIAS.slice(1).concat("domingo").map((d) => `<option value="${d}">${DIAS_TXT[d]}</option>`).join("");
+  $("#f-dia-ida").innerHTML = opts; $("#f-dia-vta").innerHTML = opts;
+  $("#f-a").value = c.aeropuertos[0]; $("#f-b").value = c.aeropuertos[1];
+  $("#f-dia-ida").value = c.diaIda; $("#f-dia-vta").value = c.diaVuelta;
+  $("#f-hora-ida").value = c.horaIdaDesde; $("#f-hora-vta").value = c.horaVueltaDesde;
+  $("#f-meses").value = c.meses; $("#f-adultos").value = c.adultos;
+  $("#f-fr").checked = c.aerolineas.includes("Ryanair"); $("#f-vy").checked = c.aerolineas.includes("Vueling");
+  $("#f-token").value = ""; $("#f-token").placeholder = store.get("gh-token") ? "Guardada ✓ (escribe otra para cambiarla)" : "github_pat_…";
+  $("#status").textContent = "";
+  dlg.showModal();
+}
+$("#open-settings").addEventListener("click", openSettings);
+$("#cancel").addEventListener("click", () => dlg.close());
+$("#settings-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const tok = $("#f-token").value.trim();
+  if (tok) store.set("gh-token", tok);
+  const aerolineas = [$("#f-fr"), $("#f-vy")].filter((x) => x.checked).map((x) => x.value);
+  if (!aerolineas.length) { $("#status").textContent = "Elige al menos una compañía."; return; }
+  const cfg = {
+    aeropuertos: [$("#f-a").value.trim().toUpperCase(), $("#f-b").value.trim().toUpperCase()],
+    aerolineas,
+    diaIda: $("#f-dia-ida").value, horaIdaDesde: $("#f-hora-ida").value,
+    diaVuelta: $("#f-dia-vta").value, horaVueltaDesde: $("#f-hora-vta").value,
+    meses: +$("#f-meses").value, adultos: +$("#f-adultos").value,
+  };
+  $("#save").disabled = true;
+  $("#status").textContent = "Guardando en GitHub…";
+  try {
+    await saveConfig(cfg);
+    dlg.close();
+    await waitForNewData(data?.generado);
+  } catch (e) {
+    $("#status").textContent = e.message;
+  } finally { $("#save").disabled = false; }
+});
+
+$("#refresh").addEventListener("click", refresh);
+$("#dir").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-dir]");
+  if (!b) return;
+  dir = b.dataset.dir; store.set("dir", dir); render();
+});
+$("#list").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-i]");
+  if (!b) return;
+  const open = b.getAttribute("aria-expanded") === "true";
+  b.setAttribute("aria-expanded", String(!open));
+  b.nextElementSibling.hidden = open;
+});
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+load(true);
+</script>
+</body>
+</html>

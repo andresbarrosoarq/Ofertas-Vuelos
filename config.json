@@ -1,0 +1,10 @@
+{
+  "aeropuertos": ["AGP", "BCN"],
+  "aerolineas": ["Ryanair", "Vueling"],
+  "diaIda": "viernes",
+  "horaIdaDesde": "17:00",
+  "diaVuelta": "domingo",
+  "horaVueltaDesde": "08:00",
+  "meses": 3,
+  "adultos": 1
+}
