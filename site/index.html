@@ -64,7 +64,7 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+header { display: flex; align-items: flex-start; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
 header h1 { margin: 0; font: 700 26px/1 var(--display); letter-spacing: .02em; text-transform: uppercase; }
 .sub { color: var(--muted); font-size: 13px; }
 button, .btn {
@@ -120,8 +120,11 @@ button[disabled] { opacity: .55; cursor: default; }
 .row-detail .leg { padding: 8px 0; }
 .best { color: var(--ok); font-weight: 600; }
 
-.criteria { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.criteria p { margin: 0; min-width: 0; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.criteria { all: unset; box-sizing: border-box; cursor: pointer; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; }
+.criteria:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+.criteria > span:first-child { min-width: 0; }
+.criteria-go { font-weight: 600; white-space: nowrap; color: var(--ink); background: var(--amber); color: var(--amber-ink); border-radius: 999px; padding: 7px 12px; }
 .notice { border-radius: 12px; padding: 12px 14px; font-size: 14px; background: var(--paper); border: 1px solid var(--line); }
 .notice.err { border-color: var(--bad); color: var(--bad); }
 .empty { text-align: center; padding: 28px 16px; color: var(--muted); }
@@ -155,17 +158,20 @@ fieldset input { width: auto; }
       <h1>Ofertas de vuelos</h1>
       <div class="sub" id="updated">Cargando…</div>
     </div>
-    <button id="refresh" type="button" aria-label="Buscar precios ahora"><span id="refresh-icon">↻</span> Actualizar</button>
+    <div class="head-actions">
+      <button id="open-settings" type="button" class="btn-primary">⚙︎ Búsqueda</button>
+      <button id="refresh" type="button" aria-label="Buscar precios ahora"><span id="refresh-icon">↻</span> Actualizar</button>
+    </div>
   </header>
+
+  <button type="button" class="criteria" id="criteria" aria-label="Cambiar criterios de búsqueda">
+    <span id="criteria-text"></span>
+    <span class="criteria-go">Cambiar ›</span>
+  </button>
 
   <div id="banner" hidden></div>
 
   <section id="best" aria-live="polite"></section>
-
-  <section class="criteria">
-    <p id="criteria-text"></p>
-    <button type="button" id="open-settings">Cambiar</button>
-  </section>
 
   <section>
     <div class="section-head">
@@ -395,6 +401,7 @@ function openSettings() {
   dlg.showModal();
 }
 $("#open-settings").addEventListener("click", openSettings);
+$("#criteria").addEventListener("click", openSettings);
 $("#cancel").addEventListener("click", () => dlg.close());
 $("#settings-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
