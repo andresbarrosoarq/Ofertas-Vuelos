@@ -5,7 +5,7 @@ on:
     - cron: "17 */6 * * *"   # cada 6 horas
   workflow_dispatch:          # botón "Actualizar ahora" de la app
   push:
-    branches: [main, claude/app]
+    branches: [main]
     paths: [config.json, site/**, scripts/**, .github/workflows/buscar.yml]
 
 permissions:
