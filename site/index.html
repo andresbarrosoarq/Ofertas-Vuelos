@@ -206,10 +206,7 @@ fieldset input { width: auto; }
       <label for="f-fr"><input type="checkbox" id="f-fr" value="Ryanair"> Ryanair</label>
       <label for="f-vy"><input type="checkbox" id="f-vy" value="Vueling"> Vueling</label>
     </fieldset>
-    <label for="f-token">Clave de GitHub (solo la primera vez)
-      <input id="f-token" type="password" autocomplete="off" placeholder="github_pat_…">
-    </label>
-    <p class="help">La búsqueda la hace GitHub cada 6 horas. Para cambiar los criterios o actualizar al momento, la app necesita un token de GitHub con permiso sobre este repositorio: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">créalo aquí</a> (Repository access: solo <b>Ofertas-Vuelos</b>; permisos <b>Contents</b> y <b>Actions</b>: Read and write). Se guarda solo en este iPhone.</p>
+    <p class="help">Al pulsar <b>Guardar y buscar</b> se abre GitHub con la petición ya escrita: solo tienes que pulsar <b>Create</b> y volver aquí. Los precios nuevos aparecen en unos 5 minutos.</p>
     <div id="status" role="status"></div>
     <div class="actions">
       <button type="button" id="cancel">Cancelar</button>
@@ -220,7 +217,6 @@ fieldset input { width: auto; }
 
 <script>
 const REPO = "andresbarrosoarq/Ofertas-Vuelos";
-const WORKFLOW = "buscar.yml";
 const DIAS = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
 const DIAS_TXT = { lunes: "lunes", martes: "martes", miercoles: "miércoles", jueves: "jueves", viernes: "viernes", sabado: "sábado", domingo: "domingo" };
 const $ = (s) => document.querySelector(s);
@@ -338,51 +334,35 @@ function banner(msg, err = false) {
   b.innerHTML = msg || "";
 }
 
-/* ---------- GitHub: cambiar criterios y lanzar la búsqueda ---------- */
-async function gh(path, opts = {}) {
-  const token = store.get("gh-token");
-  if (!token) throw new Error("Falta la clave de GitHub. Ábrela en «Cambiar».");
-  const r = await fetch(`https://api.github.com/repos/${REPO}${path}`, {
-    ...opts,
-    headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token}`, "X-GitHub-Api-Version": "2022-11-28", ...(opts.headers || {}) },
-  });
-  if (!r.ok) {
-    const msg = r.status === 401 ? "La clave de GitHub no es válida o ha caducado." : r.status === 403 || r.status === 404 ? "La clave no tiene permiso sobre el repositorio (Contents y Actions: Read and write)." : `GitHub respondió ${r.status}.`;
-    throw new Error(msg);
-  }
-  return r.status === 204 ? null : r.json();
+/* ---------- GitHub: cambiar criterios y lanzar la búsqueda ----------
+   La app abre una issue «Buscar vuelos» ya rellenada; al crearla, GitHub
+   Actions guarda los criterios y repite la búsqueda (cambiar.yml). */
+function abrirPeticion(cfg) {
+  const body = cfg
+    ? "Criterios nuevos enviados desde la app:\n\n```json\n" + JSON.stringify(cfg, null, 2) + "\n```\n"
+    : "Repetir la búsqueda con los criterios actuales.\n";
+  const url = `https://github.com/${REPO}/issues/new?title=${encodeURIComponent("Buscar vuelos")}&body=${encodeURIComponent(body)}`;
+  window.open(url, "_blank", "noopener");
 }
 
+let esperando = false;
 async function waitForNewData(prev) {
-  banner(`<span class="spin">↻</span> Buscando precios en Ryanair y Vueling… tarda unos 3–5 minutos. Puedes cerrar la app.`);
-  for (let i = 0; i < 40; i++) {
-    await new Promise((r) => setTimeout(r, 20000));
-    const d = await load(true);
-    if (d && d.generado !== prev) { banner("Precios actualizados."); setTimeout(() => banner(""), 4000); return; }
-  }
-  banner(`Sigue buscando. Revisa el estado en <a href="https://github.com/${REPO}/actions" target="_blank" rel="noopener">GitHub Actions</a>.`, true);
-}
-
-async function refresh() {
-  const btn = $("#refresh");
-  btn.disabled = true;
+  if (esperando) return;
+  esperando = true;
+  banner(`<span class="spin">↻</span> En GitHub, pulsa <b>Create</b>. Después la búsqueda tarda unos 5 minutos; los precios se cambiarán solos aquí.`);
   try {
-    await gh(`/actions/workflows/${WORKFLOW}/dispatches`, { method: "POST", body: JSON.stringify({ ref: "main" }) });
-    await waitForNewData(data?.generado);
-  } catch (e) {
-    banner(esc(e.message), true);
-    if (!store.get("gh-token")) openSettings();
-  } finally { btn.disabled = false; }
+    for (let i = 0; i < 60; i++) {
+      await new Promise((r) => setTimeout(r, 20000));
+      const d = await load(true);
+      if (d && d.generado !== prev) { banner("Precios actualizados."); setTimeout(() => banner(""), 5000); return; }
+    }
+    banner(`Todavía no hay precios nuevos. Puedes ver cómo va en <a href="https://github.com/${REPO}/actions" target="_blank" rel="noopener">GitHub Actions</a>.`, true);
+  } finally { esperando = false; }
 }
 
-function utf8ToB64(s) { return btoa(String.fromCharCode(...new TextEncoder().encode(s))); }
-
-async function saveConfig(cfg) {
-  const cur = await gh("/contents/config.json?ref=main");
-  await gh("/contents/config.json", {
-    method: "PUT",
-    body: JSON.stringify({ message: "Cambiar criterios de búsqueda desde la app", content: utf8ToB64(JSON.stringify(cfg, null, 2) + "\n"), sha: cur.sha, branch: "main" }),
-  });
+function refresh() {
+  abrirPeticion(null);
+  waitForNewData(data?.generado);
 }
 
 /* ---------- Ajustes ---------- */
@@ -396,17 +376,14 @@ function openSettings() {
   $("#f-hora-ida").value = c.horaIdaDesde; $("#f-hora-vta").value = c.horaVueltaDesde;
   $("#f-meses").value = c.meses; $("#f-adultos").value = c.adultos;
   $("#f-fr").checked = c.aerolineas.includes("Ryanair"); $("#f-vy").checked = c.aerolineas.includes("Vueling");
-  $("#f-token").value = ""; $("#f-token").placeholder = store.get("gh-token") ? "Guardada ✓ (escribe otra para cambiarla)" : "github_pat_…";
   $("#status").textContent = "";
   dlg.showModal();
 }
 $("#open-settings").addEventListener("click", openSettings);
 $("#criteria").addEventListener("click", openSettings);
 $("#cancel").addEventListener("click", () => dlg.close());
-$("#settings-form").addEventListener("submit", async (ev) => {
+$("#settings-form").addEventListener("submit", (ev) => {
   ev.preventDefault();
-  const tok = $("#f-token").value.trim();
-  if (tok) store.set("gh-token", tok);
   const aerolineas = [$("#f-fr"), $("#f-vy")].filter((x) => x.checked).map((x) => x.value);
   if (!aerolineas.length) { $("#status").textContent = "Elige al menos una compañía."; return; }
   const cfg = {
@@ -416,15 +393,10 @@ $("#settings-form").addEventListener("submit", async (ev) => {
     diaVuelta: $("#f-dia-vta").value, horaVueltaDesde: $("#f-hora-vta").value,
     meses: +$("#f-meses").value, adultos: +$("#f-adultos").value,
   };
-  $("#save").disabled = true;
-  $("#status").textContent = "Guardando en GitHub…";
-  try {
-    await saveConfig(cfg);
-    dlg.close();
-    await waitForNewData(data?.generado);
-  } catch (e) {
-    $("#status").textContent = e.message;
-  } finally { $("#save").disabled = false; }
+  if (!/^[A-Z]{3}$/.test(cfg.aeropuertos[0]) || !/^[A-Z]{3}$/.test(cfg.aeropuertos[1])) { $("#status").textContent = "Las ciudades van con su código de 3 letras (AGP, BCN, MAD…)."; return; }
+  abrirPeticion(cfg);
+  dlg.close();
+  waitForNewData(data?.generado);
 });
 
 $("#refresh").addEventListener("click", refresh);

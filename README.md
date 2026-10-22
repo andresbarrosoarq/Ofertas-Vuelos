@@ -33,13 +33,11 @@ GitHub Actions (cada 6 h, o al pulsar «Actualizar»)
 
 ## Cambiar la búsqueda desde la app
 
-Pulsa **Cambiar** para elegir ciudades, días, horas, meses, personas y compañías. La primera vez pide un token de GitHub, que se guarda solo en el iPhone:
+Pulsa **⚙︎ Búsqueda** (o el recuadro con los criterios), elige ciudades, días, horas, meses, personas y compañías, y pulsa **Guardar y buscar**. Se abre GitHub con una petición «Buscar vuelos» ya escrita: pulsa **Create** y vuelve a la app. En unos 5 minutos aparecen los precios nuevos.
 
-1. Crea uno en <https://github.com/settings/personal-access-tokens/new>.
-2. Repository access: *Only select repositories* → `Ofertas-Vuelos`.
-3. Permissions: **Contents** y **Actions** → *Read and write*.
+El botón **Actualizar** hace lo mismo pero repite la búsqueda con los criterios actuales.
 
-Al guardar, la app actualiza `config.json` y GitHub vuelve a buscar (tarda 3–5 minutos). Con el mismo token, el botón **Actualizar** lanza una búsqueda al momento.
+Por dentro, `.github/workflows/cambiar.yml` atiende esas peticiones (solo las del dueño del repositorio): guarda los criterios en `config.json`, lanza la búsqueda y cierra la petición.
 
 También puedes editar `config.json` directamente en GitHub:
 

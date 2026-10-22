@@ -1,0 +1,51 @@
+name: Petición desde la app
+
+# La app abre una issue «Buscar vuelos» (con los criterios en un bloque json).
+# Solo se atienden las del dueño del repositorio.
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+jobs:
+  peticion:
+    if: github.event.issue.user.login == github.repository_owner && startsWith(github.event.issue.title, 'Buscar vuelos')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Leer criterios
+        id: leer
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: python scripts/config_desde_issue.py | tee salida.txt
+      - name: Guardar criterios
+        run: |
+          git config user.name "ofertas-bot"
+          git config user.email "ofertas-bot@users.noreply.github.com"
+          git add config.json
+          git diff --cached --quiet || git commit -m "Cambiar criterios de búsqueda (#${{ github.event.issue.number }})"
+          git push origin HEAD:main
+      - name: Lanzar búsqueda
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run buscar.yml --ref main -R "$GITHUB_REPOSITORY"
+      - name: Responder y cerrar
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUM: ${{ github.event.issue.number }}
+          OK: ${{ job.status }}
+        run: |
+          if [ "$OK" = "success" ]; then
+            msg="Recibido. Buscando precios: en unos 5 minutos estarán en la app."
+          else
+            msg="No se ha podido procesar la petición: $(tail -1 salida.txt 2>/dev/null)"
+          fi
+          gh issue close "$NUM" -R "$GITHUB_REPOSITORY" -c "$msg"

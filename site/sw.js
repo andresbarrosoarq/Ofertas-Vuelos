@@ -1,5 +1,5 @@
 // Funciona sin conexión: la app se sirve de caché y los precios, de la red si hay.
-const CACHE = "vuelos-v2";
+const CACHE = "vuelos-v3";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png"];
 
 self.addEventListener("install", (e) => {
