@@ -23,6 +23,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # los criterios más recientes, aunque la búsqueda se lanzara antes
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -35,9 +37,14 @@ jobs:
         run: |
           git config user.name "ofertas-bot"
           git config user.email "ofertas-bot@users.noreply.github.com"
+          # Estos precios son los más recientes: se guardan sobre lo último de main.
+          cp site/vuelos.json "$RUNNER_TEMP/vuelos.json"
+          git fetch origin main
+          git reset --hard origin/main
+          cp "$RUNNER_TEMP/vuelos.json" site/vuelos.json
           git add site/vuelos.json
           git diff --cached --quiet || git commit -m "Actualizar ofertas [skip ci]"
-          git pull --rebase origin main && git push origin HEAD:main
+          git push origin HEAD:main
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:
