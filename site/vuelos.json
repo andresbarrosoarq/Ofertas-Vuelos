@@ -1,5 +1,5 @@
 {
- "generado": "2026-11-02T19:13:01+00:00",
+ "generado": "2026-11-03T01:23:03+00:00",
  "config": {
   "aeropuertos": [
    "AGP",
@@ -16,8 +16,8 @@
   "meses": 3,
   "adultos": 1
  },
- "desde": "2026-11-02",
- "hasta": "2027-02-02",
+ "desde": "2026-11-03",
+ "hasta": "2027-02-03",
  "nombres": {
   "AGP": "Málaga",
   "BCN": "Barcelona"
@@ -74,7 +74,7 @@
      "fecha": "2026-12-20",
      "salida": "20:55",
      "llegada": "22:35",
-     "precio": 68.0,
+     "precio": 73.0,
      "fuente": "Google Flights",
      "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20BCN%20a%20AGP%20el%202026-12-20%20solo%20ida"
     },
@@ -237,7 +237,7 @@
    "destino": "BCN",
    "fechaIda": "2026-12-11",
    "fechaVuelta": "2026-12-13",
-   "total": 106.95,
+   "total": 111.95,
    "ida": {
     "aerolinea": "Vueling",
     "vuelo": "",
@@ -246,7 +246,7 @@
     "fecha": "2026-12-11",
     "salida": "23:45",
     "llegada": "01:20",
-    "precio": 59.0,
+    "precio": 64.0,
     "fuente": "Google Flights",
     "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20AGP%20a%20BCN%20el%202026-12-11%20solo%20ida"
    },
@@ -355,7 +355,7 @@
      "fecha": "2027-01-31",
      "salida": "23:20",
      "llegada": "00:55",
-     "precio": 61.0,
+     "precio": 66.0,
      "fuente": "Google Flights",
      "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20AGP%20a%20BCN%20el%202027-01-31%20solo%20ida"
     },
@@ -541,7 +541,7 @@
      "fecha": "2026-12-04",
      "salida": "18:05",
      "llegada": "19:45",
-     "precio": 145.0,
+     "precio": 132.0,
      "fuente": "Google Flights",
      "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20BCN%20a%20AGP%20el%202026-12-04%20solo%20ida"
     }
@@ -970,12 +970,12 @@
    },
    "vuelta": {
     "aerolinea": "Ryanair",
-    "vuelo": "FR3080",
+    "vuelo": "FR483",
     "origen": "BCN",
     "destino": "AGP",
     "fecha": "2026-12-27",
-    "salida": "21:20",
-    "llegada": "23:05",
+    "salida": "09:55",
+    "llegada": "11:40",
     "precio": 108.45,
     "fuente": "ryanair.com",
     "enlace": "https://www.ryanair.com/es/es/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=2026-12-27&isReturn=false&originIata=BCN&destinationIata=AGP"
@@ -1204,20 +1204,7 @@
     "fuente": "ryanair.com",
     "enlace": "https://www.ryanair.com/es/es/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=2026-11-15&isReturn=false&originIata=BCN&destinationIata=AGP"
    },
-   "alternativasIda": [
-    {
-     "aerolinea": "Vueling",
-     "vuelo": "",
-     "origen": "AGP",
-     "destino": "BCN",
-     "fecha": "2026-11-13",
-     "salida": "17:50",
-     "llegada": "19:25",
-     "precio": 155.0,
-     "fuente": "Google Flights",
-     "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20AGP%20a%20BCN%20el%202026-11-13%20solo%20ida"
-    }
-   ],
+   "alternativasIda": [],
    "alternativasVuelta": [
     {
      "aerolinea": "Vueling",
@@ -1239,7 +1226,7 @@
      "fecha": "2026-11-15",
      "salida": "21:55",
      "llegada": "23:35",
-     "precio": 121.0,
+     "precio": 132.0,
      "fuente": "Google Flights",
      "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20BCN%20a%20AGP%20el%202026-11-15%20solo%20ida"
     },
@@ -1310,7 +1297,7 @@
      "fecha": "2026-11-15",
      "salida": "23:20",
      "llegada": "00:55",
-     "precio": 121.0,
+     "precio": 131.0,
      "fuente": "Google Flights",
      "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20AGP%20a%20BCN%20el%202026-11-15%20solo%20ida"
     },
@@ -1392,7 +1379,7 @@
      "fecha": "2026-11-08",
      "salida": "12:50",
      "llegada": "14:30",
-     "precio": 178.0,
+     "precio": 205.0,
      "fuente": "Google Flights",
      "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20BCN%20a%20AGP%20el%202026-11-08%20solo%20ida"
     },
@@ -1415,7 +1402,7 @@
    "destino": "AGP",
    "fechaIda": "2026-11-06",
    "fechaVuelta": "2026-11-08",
-   "total": 360.0,
+   "total": 375.0,
    "ida": {
     "aerolinea": "Vueling",
     "vuelo": "",
@@ -1434,9 +1421,9 @@
     "origen": "AGP",
     "destino": "BCN",
     "fecha": "2026-11-08",
-    "salida": "23:20",
-    "llegada": "00:55",
-    "precio": 155.0,
+    "salida": "09:05",
+    "llegada": "10:40",
+    "precio": 170.0,
     "fuente": "Google Flights",
     "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20AGP%20a%20BCN%20el%202026-11-08%20solo%20ida"
    },
@@ -1448,8 +1435,8 @@
      "origen": "AGP",
      "destino": "BCN",
      "fecha": "2026-11-08",
-     "salida": "09:05",
-     "llegada": "10:40",
+     "salida": "23:20",
+     "llegada": "00:55",
      "precio": 170.0,
      "fuente": "Google Flights",
      "enlace": "https://www.google.com/travel/flights?hl=es&curr=EUR&q=vuelos%20de%20AGP%20a%20BCN%20el%202026-11-08%20solo%20ida"
